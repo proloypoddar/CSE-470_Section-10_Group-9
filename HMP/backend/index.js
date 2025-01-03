@@ -18,7 +18,6 @@ connectAtlasDB();
 app.get('/', (req, res) => {
   res.send('Welcome to the Hospital Management System API');
 });
-
 // Routes
 app.use('/api/doctors', require('./routes/doctors'));
 app.use('/api/patients', require('./routes/patients'));
