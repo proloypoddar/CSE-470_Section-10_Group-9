@@ -1,10 +1,11 @@
-const express = require('express');
+// Import required modules
 const path = require('path');
 const multer = require('multer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Doctor = require('../models/Doctor');
 require('dotenv').config();
+//intialize constant router 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
