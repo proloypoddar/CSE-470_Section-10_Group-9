@@ -7,7 +7,7 @@ const router = express.Router();
 const authenticateDoctor = (req, res, next) => {
   const doctorEmail = req.headers['doctor-email'];
   if (!doctorEmail) {
-    return res.status(400).send({ message: 'Doctor email is required' });
+    return res.status(400).json({ message: 'Doctor email is required' });
   }
   req.doctorEmail = doctorEmail;
   next();
