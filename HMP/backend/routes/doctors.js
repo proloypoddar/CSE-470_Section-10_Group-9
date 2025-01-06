@@ -148,7 +148,7 @@ router.get('/profilepic/:id', async (req, res) => {
         if (!doctor || !doctor.profilePicture) {
             return res.status(404).json({ message: 'Profile picture not found' });
         }
-
+         //Send the profile picture file as a response
         const profilePicPath = path.join(__dirname, '..', doctor.profilePicture);
         res.sendFile(profilePicPath);
     } catch (error) {
