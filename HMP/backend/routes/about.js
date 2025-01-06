@@ -22,8 +22,8 @@ const aboutData = {
     ],
     contactInfo: {
         emails: [
-            "polok.poddar@g.bracu.ac.bd"
-            
+            "polok.poddar@g.bracu.ac.bd",
+            "tahmid.islam@g.bracu.ac.bd" // Added the new email here
         ],
         phones: [
             "+880 1711 111 111",
@@ -40,7 +40,6 @@ const ensureAboutData = async (req, res, next) => {
     try {
         let about = await About.findOne();
         if (!about) {
-            
             about = new About(aboutData);
             await about.save();
         }
