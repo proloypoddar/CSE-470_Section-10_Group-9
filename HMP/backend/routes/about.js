@@ -33,7 +33,7 @@ const aboutData = {
 
 // GET /about - Retrieve about data (no need to check or insert into database)
 router.get('/', (req, res) => {
-    res.json(aboutData); // Send the static aboutData directly as the respons
+    res.json(aboutData); // Send the static aboutData directly as the response
 });
 
 module.exports = router;
