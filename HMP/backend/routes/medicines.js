@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -15,6 +16,11 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+/**
+ * Route to add a new medicine
+ * @route POST /add
+ * @access Public
+ */
 
 // Add new medicine
 router.post('/add', upload.single('image'), async (req, res) => {

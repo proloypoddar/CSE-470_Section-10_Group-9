@@ -1,8 +1,15 @@
+
 const express = require('express');
 const router = express.Router();
 const Appointment = require('../models/Appointment');
 const Doctor = require('../models/Doctor');
 const HealthCard = require('../models/HealthCard');
+
+// Utility function to handle errors
+const handleError = (res, error, message = 'Internal server error') => {
+    console.error(error);
+    res.status(500).json({ error: message });
+};
 
 // Get all distinct departments
 router.get('/departments', async (req, res) => {
@@ -10,7 +17,7 @@ router.get('/departments', async (req, res) => {
         const departments = await Doctor.distinct('department');
         res.json(departments);
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
 
@@ -20,7 +27,7 @@ router.get('/doctors/:department', async (req, res) => {
         const doctors = await Doctor.find({ department: req.params.department });
         res.json(doctors);
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
 
@@ -33,7 +40,7 @@ router.get('/doctor/:id', async (req, res) => {
         }
         res.json(doctor);
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
 
@@ -42,25 +49,21 @@ router.post('/', async (req, res) => {
     const { department, doctor, date, timeSlot, patientName, patientEmail, patientPhone } = req.body;
 
     try {
-        // Fetch doctor's details
         const doctorDetails = await Doctor.findById(doctor);
         if (!doctorDetails) {
             return res.status(404).json({ error: 'Doctor not found' });
         }
 
-        // Check if an appointment already exists for the same doctor on the same date and time slot
         const existingDoctorAppointment = await Appointment.findOne({ doctor, date, timeSlot });
         if (existingDoctorAppointment) {
             return res.status(400).json({ error: 'This time slot is already booked with this doctor.' });
         }
 
-        // Check if the same patient already has an appointment on the same date and time slot
         const existingPatientAppointment = await Appointment.findOne({ patientEmail, date, timeSlot });
         if (existingPatientAppointment) {
             return res.status(400).json({ error: 'You already have an appointment at this time and date.' });
         }
 
-        // Create and save the appointment
         const newAppointment = new Appointment({
             department,
             doctor,
@@ -76,67 +79,63 @@ router.post('/', async (req, res) => {
         await newAppointment.save();
         res.status(201).json(newAppointment);
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
 
 // Get appointments by doctor email
 router.get('/doctor/email/:email', async (req, res) => {
     try {
-        const { email } = req.params;
-        const appointments = await Appointment.find({ doctorEmail: email });
+        const appointments = await Appointment.find({ doctorEmail: req.params.email });
         res.json(appointments);
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
 
 // Get appointments by patient email
 router.get('/patient/email/:email', async (req, res) => {
     try {
-        const { email } = req.params;
-        const appointments = await Appointment.find({ patientEmail: email });
+        const appointments = await Appointment.find({ patientEmail: req.params.email });
         res.json(appointments);
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
-// Route to get the total number of appointments for a specific doctor
+
+// Get the total number of appointments for a specific doctor
 router.get('/count/:doctorEmail', async (req, res) => {
-  try {
-    const { doctorEmail } = req.params;
-    const count = await Appointment.countDocuments({ doctorEmail });
-    res.json({ count });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
-  }
+    try {
+        const count = await Appointment.countDocuments({ doctorEmail: req.params.doctorEmail });
+        res.json({ count });
+    } catch (err) {
+        handleError(res, err);
+    }
 });
 
 // Get today's appointments for a specific doctor
 router.get('/today-appointments', async (req, res) => {
     try {
-      const doctorEmail = req.query.doctorEmail;
-      const today = new Date();
-      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(today.setHours(23, 59, 59, 999));
-  
-      const appointments = await Appointment.find({
-        doctorEmail,
-        date: { $gte: startOfDay, $lte: endOfDay }
-      }).sort({ time: 1 }); 
-  
-      res.json(appointments);
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+        const { doctorEmail } = req.query;
+        const today = new Date();
+        const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
+        const appointments = await Appointment.find({
+            doctorEmail,
+            date: { $gte: startOfDay, $lte: endOfDay },
+        }).sort({ time: 1 });
+
+        res.json(appointments);
+    } catch (err) {
+        handleError(res, err);
     }
-  });
+});
+
 // Request payment
 router.put('/request-payment/:id', async (req, res) => {
-    const { id } = req.params;
-
     try {
-        const appointment = await Appointment.findById(id);
+        const appointment = await Appointment.findById(req.params.id);
 
         if (!appointment) {
             return res.status(404).json({ error: 'Appointment not found' });
@@ -151,17 +150,16 @@ router.put('/request-payment/:id', async (req, res) => {
 
         res.json({ message: 'Payment request has been sent' });
     } catch (err) {
-        res.status(500).json({ error: 'Internal server error' });
+        handleError(res, err);
     }
 });
 
 // Pay with health card
 router.put('/pay/:id', async (req, res) => {
-    const { id } = req.params;
     const { email } = req.body;
 
     try {
-        const appointment = await Appointment.findById(id);
+        const appointment = await Appointment.findById(req.params.id);
         const healthCard = await HealthCard.findOne({ email });
 
         if (!appointment || !healthCard) {
@@ -185,11 +183,9 @@ router.put('/pay/:id', async (req, res) => {
         await appointment.save();
 
         res.json({ message: 'Payment successful', appointment });
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
+    } catch (err) {
+        handleError(res, err);
     }
 });
-
-
 
 module.exports = router;
