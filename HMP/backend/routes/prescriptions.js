@@ -38,7 +38,7 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// Get prescriptions for a specific doctor
+// Get prescriptions from a specific doctor
 router.get('/dsearch', authenticateDoctor, async (req, res) => {
   const { query } = req.query;
   const doctorEmail = req.doctorEmail;
@@ -62,7 +62,7 @@ router.get('/dsearch', authenticateDoctor, async (req, res) => {
   }
 });
 
-// Middleware to authenticate patient
+// Middleware to authenticate a patient
 const authenticatePatient = (req, res, next) => {
   const patientEmail = req.headers['patient-email'];
   if (!patientEmail) {
@@ -92,7 +92,7 @@ router.get('/psearch', authenticatePatient, async (req, res) => {
   }
 });
 
-// Count distinct patients by doctorEmail
+// Count specific patients by doctorEmail
 router.get('/count-patients', async (req, res) => {
   try {
     const { doctorEmail } = req.query;
