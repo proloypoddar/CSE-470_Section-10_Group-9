@@ -6,10 +6,22 @@ const BloodAvailability = require('../models/BloodAvailability');
 router.get('/', async (req, res) => {
   try {
     const bloodAvailability = await BloodAvailability.find();
-    res.status(200).json(bloodAvailability);
+    
+    if (!bloodAvailability || bloodAvailability.length === 0) {
+      return res.status(404).json({ message: 'Blood not available at the moment' });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: bloodAvailability
+    });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error, please try again.' });
+    console.error('Error fetching blood availability:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error, please try again.'
+    });
   }
 });
 
