@@ -26,9 +26,6 @@ const aboutData = {
         ],
         phones: [
             "+880 1711 111 111",
-            "+880 1911 111 111",
-            "+880 1811 111 111",
-            "+880 1611 111 111"
         ],
         address: "gulshan, dhaka, bangladesh"
     }
