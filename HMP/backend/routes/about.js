@@ -22,7 +22,7 @@ const aboutData = {
     contactInfo: {
         emails: [
             "polok.poddar@g.bracu.ac.bd",
-            "tahmid.islam@g.bracu.ac.bd" // Added the new email here
+            "tahmid.islam@g.bracu.ac.bd" // Added the new emails here
         ],
         phones: [
             "+880 1711 111 111",
