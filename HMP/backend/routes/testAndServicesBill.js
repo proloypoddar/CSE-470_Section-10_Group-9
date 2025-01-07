@@ -3,10 +3,24 @@ const router = express.Router();
 const TestAndServicesBill = require('../models/TestAndServicesBill');
 const HealthCard = require('../models/HealthCard');
 
+// HTTP Status codes
+const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  NOT_FOUND: 404,
+  SERVER_ERROR: 500
+};
+
+// Validate required fields
+const validateFields = (fields) => {
+  return Object.entries(fields).every(([key, value]) => value !== undefined && value !== '');
+};
+
 // Create a new bill
 router.post('/add', async (req, res) => {
   try {
-    const {
+    const billData = {
       doctorName,
       doctorEmail,
       patientName,
@@ -15,25 +29,29 @@ router.post('/add', async (req, res) => {
       selectedItems
     } = req.body;
 
-    if (!doctorName || !doctorEmail || !patientName || !patientEmail || !phoneNumber || !selectedItems) {
-      return res.status(400).json({ error: 'All fields are required' });
+    if (!validateFields(billData)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+        error: 'All fields are required' 
+      });
     }
 
     const newBill = new TestAndServicesBill({
-      doctorName,
-      doctorEmail,
-      patientName,
-      patientEmail,
+      ...billData,
       phone: phoneNumber,
-      selectedItems,
       totalBill: selectedItems.reduce((total, item) => total + item.price, 0)
     });
 
     await newBill.save();
-    res.status(201).json({ message: 'Bill sent to the patient succesfully' });
+    res.status(HTTP_STATUS.CREATED).json({ 
+      message: 'Bill sent to the patient successfully',
+      billId: newBill._id 
+    });
   } catch (err) {
-    console.error(err); // Log error for debugging
-    res.status(400).json({ error: 'Failed to add bill' });
+    console.error('Error creating bill:', err);
+    res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+      error: 'Failed to add bill',
+      details: err.message 
+    });
   }
 });
 
@@ -50,36 +68,43 @@ router.get('/bills/:email', async (req, res) => {
 // Pay for a bill and update health card
 router.put('/pay/:id', async (req, res) => {
   try {
-    const { email, topUpAmount } = req.body;
+    const { email } = req.body;
+    const [bill, healthCard] = await Promise.all([
+      TestAndServicesBill.findById(req.params.id),
+      HealthCard.findOne({ email })
+    ]);
 
-    // Fetch the bill
-    const bill = await TestAndServicesBill.findById(req.params.id);
-    if (!bill) {
-      return res.status(404).json({ error: 'Bill not found' });
+    if (!bill || !healthCard) {
+      return res.status(HTTP_STATUS.NOT_FOUND).json({ 
+        error: !bill ? 'Bill not found' : 'Health card not found' 
+      });
     }
 
-    // Fetch the health card
-    const healthCard = await HealthCard.findOne({ email });
-    if (!healthCard) {
-      return res.status(404).json({ error: 'Health card not found' });
-    }
-
-    // Check if the card has enough balance
     if (bill.totalBill > healthCard.topUpAmount) {
-      return res.status(400).json({ error: 'Insufficient funds' });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ 
+        error: 'Insufficient funds',
+        required: bill.totalBill,
+        available: healthCard.topUpAmount
+      });
     }
 
-    // Update the bill status
+    // Update both documents
     bill.paid = true;
-    await bill.save();
-
-    // Deduct points from the health card
     healthCard.topUpAmount -= bill.totalBill;
-    await healthCard.save();
 
-    res.json({ message: 'Payment successful', bill });
+    await Promise.all([bill.save(), healthCard.save()]);
+
+    res.status(HTTP_STATUS.OK).json({ 
+      message: 'Payment successful',
+      bill,
+      remainingBalance: healthCard.topUpAmount
+    });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to process payment' });
+    console.error('Payment processing error:', err);
+    res.status(HTTP_STATUS.SERVER_ERROR).json({ 
+      error: 'Failed to process payment',
+      details: err.message 
+    });
   }
 });
 
