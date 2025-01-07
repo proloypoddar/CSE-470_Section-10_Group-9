@@ -61,7 +61,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch medicines.', error: err.message });
   }
 });
-
 // Update medicine stock (increase or decrease)
 router.put('/:id', async (req, res) => {
   const { operation, strip } = req.body;
