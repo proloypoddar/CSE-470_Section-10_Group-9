@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const Medicine = require('../models/Medicine');
 
-// Configure multer for file uploads
+// Configure multer for files uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/medicines/');
