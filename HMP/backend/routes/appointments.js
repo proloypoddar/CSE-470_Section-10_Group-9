@@ -155,7 +155,7 @@ router.put('/request-payment/:id', async (req, res) => {
     }
 });
 
-// Pay with health card
+// Pay with health card 
 router.put('/pay/:id', async (req, res) => {
     const { id } = req.params;
     const { email } = req.body;

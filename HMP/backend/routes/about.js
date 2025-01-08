@@ -1,8 +1,7 @@
 const express = require('express');
-const About = require('../models/About'); 
 const router = express.Router();
 
-// Static About Data
+// Static About Data with the new email included
 const aboutData = {
     title: "HealingWave Health Service",
     mission: "Delivering compassionate healthcare with state-of-the-art technology and skilled professionals.",
@@ -22,34 +21,23 @@ const aboutData = {
     ],
     contactInfo: {
         emails: [
-            "polok.poddar@g.bracu.ac.bd"
+            "polok.poddar@g.bracu.ac.bd",
+            "tahmid.islam@g.bracu.ac.bd" // Added the new email here
         ],
         phones: [
             "+880 1711 111 111",
         ],
+<<<<<<< HEAD
         address: "Gulshan, dhaka, bangladesh"
+=======
+        address: "Gulshan, Dhaka, Bangladesh"
+>>>>>>> origin/Tahmid_Bug_Fix
     }
 };
 
-// Middleware to check if the data exists in the database, and insert if it does not
-const ensureAboutData = async (req, res, next) => {
-    try {
-        let about = await About.findOne();
-        if (!about) {
-            
-            about = new About(aboutData);
-            await about.save();
-        }
-        req.aboutData = about; 
-        next();
-    } catch (error) {
-        res.status(500).json({ message: 'Server Error', error });
-    }
-};
-
-// GET /about - Retrieve about data from the database
-router.get('/', ensureAboutData, (req, res) => {
-    res.json(req.aboutData);
+// GET /about - Retrieve about data (no need to check or insert into database)
+router.get('/', (req, res) => {
+    res.json(aboutData); // Send the static aboutData directly as the response
 });
 
 module.exports = router;

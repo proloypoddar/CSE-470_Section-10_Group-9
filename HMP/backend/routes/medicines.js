@@ -4,7 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const Medicine = require('../models/Medicine');
 
-// Configure multer for file uploads
+// Configure multer for files uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/medicines/');
@@ -15,6 +15,11 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+/**
+ * Route to add a new medicine
+ * @route POST /add
+ * @access Public
+ */
 
 // Add new medicine
 router.post('/add', upload.single('image'), async (req, res) => {
@@ -50,7 +55,11 @@ router.get('/', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch medicines.', error: err.message });
   }
 });
-
+/**
+ * Route to fetch all medicines
+ * @route GET /
+ * @access Public
+ */
 // Update medicine stock
 router.put('/:id', async (req, res) => {
   const { strip } = req.body;
@@ -66,6 +75,12 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to update medicine stock', error: error.message });
   }
 });
+/**
+ * Route to update medicine stock
+ * @route PUT /:id
+ * @access Public
+ */
+
 // Update medicine stock (increase or decrease)
 router.put('/:id', async (req, res) => {
   const { operation, strip } = req.body;
