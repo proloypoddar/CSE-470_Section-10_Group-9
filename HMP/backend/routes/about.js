@@ -27,11 +27,8 @@ const aboutData = {
         phones: [
             "+880 1711 111 111",
         ],
-<<<<<<< HEAD
         address: "Gulshan, dhaka, bangladesh"
-=======
-        address: "Gulshan, Dhaka, Bangladesh"
->>>>>>> origin/Tahmid_Bug_Fix
+
     }
 };
 
