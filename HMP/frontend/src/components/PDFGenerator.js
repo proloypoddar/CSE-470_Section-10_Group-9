@@ -12,7 +12,7 @@ export const prescriptionPDF = (formData) => {
         margin: [0, 20],
       },
       {
-        text: '15 Rankin Street, Wari, Dhaka 1203',
+        text: 'Gulshan, Dhaka 1212, Bangladesh',
         style: 'address',
         alignment: 'center',
         margin: [0, 0, 0, 30],

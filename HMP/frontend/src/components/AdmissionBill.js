@@ -25,6 +25,7 @@ const AdmissionBill = () => {
         setHealthCard(cardRes.data);
       } catch (error) {
         console.error(error);
+        setErrorMessage('Failed to fetch bills. Please try again later.');
       }
     };
 
@@ -33,7 +34,7 @@ const AdmissionBill = () => {
 
   const handlePay = async (billId, type) => {
     try {
-      if (healthCard.topUpAmount <= 0) {
+      if (!healthCard || healthCard.topUpAmount <= 0) {
         setErrorMessage('Insufficient points. Please top up some points.');
         return;
       }
@@ -55,6 +56,7 @@ const AdmissionBill = () => {
         setCabinBills(cabinBills.filter(bill => bill._id !== billId));
       }
     } catch (error) {
+      console.error(error);
       setErrorMessage(error.response?.data?.message || 'Payment failed. Please top up your health card.');
       setSuccessMessage('');
     }
