@@ -246,7 +246,7 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 const generateTestBillPDF = (bills) => {
   const hospitalName = 'HealingWave Health Service';
-  const hospitalAddress = '15 Rankin Street, Wari, Dhaka 1203';
+  const hospitalAddress = 'Glushan, Dhaka 1212, Bangladesh';
 
   const docDefinition = {
     content: [
