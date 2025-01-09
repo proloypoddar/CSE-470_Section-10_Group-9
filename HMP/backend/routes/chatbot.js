@@ -31,6 +31,12 @@ const responses = {
     
     For more detailed information or to schedule a donation, please visit our [Blood Bank](blood-bank) page.
   `,
+  emergencyContact: "In case of emergencies, please call our 24/7 helpline at +123-456-7890. For further assistance, visit our [Emergency Services](emergency-services) page.",
+  pharmacy: "Our pharmacy provides a wide range of medications at affordable prices. To explore or order medicines, please [log in](pharmacy-login) to your account.",
+  covidInfo: "Stay updated on COVID-19 guidelines, vaccination centers, and test availability. Please visit our [COVID-19 Info](covid-info) page for more details.",
+  mentalHealth: "We offer mental health services, including counseling and therapy sessions. For more information, please visit our [Mental Health](mental-health) page.",
+  dietAndNutrition: "Explore our diet and nutrition services, including meal plans and consultations with dieticians. Please [log in](nutrition-login) to get started.",
+  feedback: "We value your feedback! Please visit our [Feedback](feedback) page to share your thoughts and help us improve.",
 };
 
 // Chatbot interaction endpoint
@@ -68,6 +74,18 @@ router.post('/chat', async (req, res) => {
     response = responses.support;
   } else if (/about/.test(lowerCaseMessage)) {
     response = responses.about;
+  } else if (/emergency/.test(lowerCaseMessage)) {
+    response = responses.emergencyContact;
+  } else if (/pharmacy/.test(lowerCaseMessage)) {
+    response = responses.pharmacy;
+  } else if (/covid/.test(lowerCaseMessage)) {
+    response = responses.covidInfo;
+  } else if (/mental health/.test(lowerCaseMessage)) {
+    response = responses.mentalHealth;
+  } else if (/diet|nutrition/.test(lowerCaseMessage)) {
+    response = responses.dietAndNutrition;
+  } else if (/feedback/.test(lowerCaseMessage)) {
+    response = responses.feedback;
   }
 
   // Save the interaction
