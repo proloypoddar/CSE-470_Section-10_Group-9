@@ -8,6 +8,11 @@ const HealthCard = require('../models/HealthCard');
 router.post('/buy', async (req, res) => {
   const { name, email, phoneNumber, address, selectedMedicines } = req.body;
 
+  // Input validation
+  if (!name || !email || !phoneNumber || !address || !selectedMedicines?.length) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
     let totalBill = 0;
     const billDetails = [];
@@ -45,14 +50,19 @@ router.post('/buy', async (req, res) => {
       address,
       medicines: billDetails,
       totalBill,
-      paid: false // Initially unpaid
+      paid: false,
+      transactionDate: new Date()
     });
     await newBill.save();
 
-    res.status(201).json({ message: 'Bill submitted', totalBill });
+    res.status(201).json({ 
+      message: 'Bill created successfully',
+      billId: newBill._id,
+      totalBill 
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error creating bill:', error);
+    res.status(500).json({ message: 'Failed to create bill' });
   }
 });
 
@@ -82,8 +92,11 @@ router.put('/pay/:billId', async (req, res) => {
     const bill = await MedicineBill.findById(billId);
     const healthCard = await HealthCard.findOne({ email });
 
-    if (!bill || !healthCard) {
-      return res.status(404).json({ message: 'Bill or Health Card not found' });
+    if (!bill) {
+      return res.status(404).json({ message: 'Bill not found' });
+    }
+    if (!healthCard) {
+      return res.status(404).json({ message: 'Health card not found' });
     }
 
     if (bill.paid) {
@@ -102,10 +115,14 @@ router.put('/pay/:billId', async (req, res) => {
     bill.paid = true;
     await bill.save();
 
-    res.status(200).json({ message: 'Bill paid successfully', bill });
+    res.status(200).json({ 
+      message: 'Payment successful',
+      remainingBalance: healthCard.topUpAmount,
+      bill 
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error processing payment:', error);
+    res.status(500).json({ message: 'Failed to process payment' });
   }
 });
 
